@@ -9,9 +9,7 @@ export default function TabsComponent () {
     }
     return (
         <div className="flex flex-row">
-            <Card
-                aria-label="Listbox Variants"
-            >
+            <Card>
                 <Button onPress={()=>handleTabs("/admin")}>Home</Button>
                 <Button  onPress={()=>handleTabs("/admin/mision")}>Misiones</Button>
                 <Button onPress={() => handleTabs("/admin/logro")}>Logros</Button>

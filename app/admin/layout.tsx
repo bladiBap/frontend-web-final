@@ -1,5 +1,6 @@
 "use client";
 import TabsComponent from "@/components/Tabs/Tabs";
+import { Card } from "@nextui-org/react";
 
 export default function RootLayout({
     children,
@@ -9,9 +10,9 @@ export default function RootLayout({
     return (
         <div className="flex flex-row gap-4 mt-10">
             <TabsComponent />
-            <div className="">
+            <Card className="w-full p-4">
                 {children}
-            </div>
+            </Card>
         </div>
     );
 }
