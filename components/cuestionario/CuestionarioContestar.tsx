@@ -36,20 +36,7 @@ const CuestionarioContestar = (
         fetchPowerupsAvailables();
     }, []);
 
-    // useEffect(() => {
-    //     const fetchPowerupsAvailables = async () => {
-    //         try {
-    //             const response = await PowerupService.getPowerupsByUser();
-    //             setPowerups(response);
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     };
-    //     fetchPowerupsAvailables();
-    // }, [powerups]);
-
     const handleSetPowerups = (newPowerups: PowerupAvailables[]) => {
-        console.log(newPowerups);
         setPowerups(newPowerups);
     };
 
@@ -140,6 +127,7 @@ const CuestionarioPregunta = (
     }: PreguntaProps
 ) => {
     const [preguntaState, setpreguntaState] = useState(pregunta);
+    const [auxPowerups, setauxPowerups] = useState(powerups);
     const [isRespondida, setIsRespondida] = useState(false);
     const [usedPowerups, setUsedPowerups] = useState<number[]>([]);
     const subirRespuesta = useMutation({
@@ -179,10 +167,10 @@ const CuestionarioPregunta = (
         }
     }
 
-    const handleClick = async (powerupId: number, pregunta: Pregunta, userpowerupid : number) => {
+    const handleClick = async (powerupId: number, pregunta: Pregunta, userpowerupid: number) => {
         if (!usedPowerups.includes(powerupId)) {
             setUsedPowerups([...usedPowerups, powerupId]);
-            if (powerupId === 2) {
+            if (powerupId === 1) {
                 const incorrectas = pregunta.opciones.filter((op) => !op.es_correcta);
                 const opcionesRestantes = [
                     ...incorrectas.slice(0, 1),
@@ -198,7 +186,7 @@ const CuestionarioPregunta = (
 
                 usedPowerups.push(powerupId);
                 await PowerupService.usePowerup(userpowerupid);
-            } else if (powerupId === 1) {
+            } else if (powerupId === 2) {
                 const correcta = preguntaState.opciones.find((op) => op.es_correcta);
                 if (correcta) {
                     responder(correcta);
@@ -285,10 +273,10 @@ const CuestionarioPregunta = (
                                     <Button
                                         onClick={() => handleClick(powerup.powerup.id, pregunta, powerup.id)}
                                         disabled={powerup.cantidad === 0 || usedPowerups.includes(powerup.powerup.id)}
-                                        color={usedPowerups.includes(powerup.powerup.id) ? "default" : "primary"}
+                                        color={powerup.cantidad === 0 || usedPowerups.includes(powerup.powerup.id) ? "default" : "primary"}
                                         className="w-full"
                                     >
-                                        {usedPowerups.includes(powerup.powerup.id) ? "Usado" : "Usar"}
+                                        {powerup.cantidad === 0 || usedPowerups.includes(powerup.powerup.id) ? "Usado" : "Usar"}
                                     </Button>
                                 </li>
                             ))}
