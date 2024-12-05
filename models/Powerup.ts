@@ -21,3 +21,17 @@ export interface PowerupCreate {
     fk_nivel:    number;
 }
 
+export interface PowerupAvailables {
+    id : number;
+    cantidad: number;
+    powerup:  Powerup;
+}
+
+// export interface Powerup {
+//     id:          number;
+//     nombre:      string;
+//     descripcion: string;
+//     nivel?:      Powerup;
+// }
+
+
