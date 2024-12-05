@@ -3,6 +3,7 @@ import { Cuestionario } from "@/models/Cuestionario"
 import { Opcion } from "@/models/Opcion"
 import { Pregunta } from "@/models/Pregunta"
 import { CuestionarioService } from "@/services/CuestionarioService"
+import { UserService } from "@/services/usuario/user"
 import { MAXIMA_RACHA, PUNTOS_POR_PREGUNTA } from "@/utils/constants"
 import { Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react"
 import { useMutation } from "@tanstack/react-query"
@@ -102,7 +103,14 @@ const CuestionarioPregunta = (
     const [isRespondida, setIsRespondida] = useState(false);
     const subirRespuesta = useMutation({
         mutationFn: CuestionarioService.responder,
-    })
+    });
+    const complete = useMutation({
+        mutationFn: async () => {
+            await UserService.completeCuestionario(pregunta.cuestionario_id);
+            await UserService.postLogros();
+            await UserService.postMisiones();
+        }
+    });
 
     const responder = (opcion: Opcion) => {
         setIsRespondida(true);
@@ -124,6 +132,9 @@ const CuestionarioPregunta = (
                 opcion_id: opcion.id,
                 puntos: 0
             });
+        }
+        if (preguntaIndex === totalPreguntas) {
+            complete.mutate();
         }
     }
 
