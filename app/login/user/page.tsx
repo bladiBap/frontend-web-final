@@ -1,8 +1,11 @@
+"use client";
+import React from 'react';
+import LoginComponent from '@/components/login/login';
+
 export default function Page() {
     return (
-        <div>
-            <h1>User Page</h1>
-            <p>This is the user page.</p>
+        <div className="flex justify-center items-center pt-20">
+            <LoginComponent type="user"/>
         </div>
     )
 }

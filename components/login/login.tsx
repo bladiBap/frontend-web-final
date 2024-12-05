@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
 import { Card, CardBody, Image, Input, Button } from "@nextui-org/react";
+import { AuthService } from "@/services/usuario/auth/auth";
 import showToast from '@/utils/toast';
 
 interface LoginProps {
     type : string;
 }
 
-export default function LoginComponent() {
+export default function LoginComponent({type} : LoginProps) {
 
     const urlImages = {
 
@@ -19,11 +20,19 @@ export default function LoginComponent() {
     const handleLogin = (e) => {
         e.preventDefault();
         e.stopPropagation();
-
+        console.log("Login");
         if(correo === "" || contrasena === ""){
             showToast("Por favor llene todos los campos", "error");
             return;
         }
+
+        AuthService.login(correo, contrasena).then((res) => {
+            console.log(res);
+            showToast("Inicio de sesion exitoso", "success");
+        }).catch((err) => {
+            console.log(err);
+            showToast("Ocurrio un error", "error");
+        });
     }
 
     return (
@@ -46,7 +55,7 @@ export default function LoginComponent() {
                     </div>
 
                     <div className="flex flex-col items-center w-full p-8 col-span-6 gap-4 md:col-span-8">
-                        <h1 className="typography-h1">Iniciar Sesion</h1>
+                        <h1 className="typography-h1">{ type === "admin" ? "Admin" : "Usuario" } Login</h1>
                         <p>
                             Inicia sesion para poder acceder a NurQuests, una plataforma donde podras encontrar y 
                             crear cuestionarios de manera sencilla. 
