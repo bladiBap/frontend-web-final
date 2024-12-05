@@ -13,6 +13,9 @@ export default function TabsComponent () {
                 <Button onPress={()=>handleTabs("/admin")}>Home</Button>
                 <Button  onPress={()=>handleTabs("/admin/mision")}>Misiones</Button>
                 <Button onPress={() => handleTabs("/admin/logro")}>Logros</Button>
+                <Button onPress={() => handleTabs("/admin/nivel")}>Niveles</Button>
+                <Button onPress={() => handleTabs("/admin/powerup")}>Powerups</Button>
+                <Button onPress={() => handleTabs("/admin/topico")}>Topico</Button>
             </Card>
         </div>
     );

@@ -31,9 +31,6 @@ const CuestionarioInfo = (
                     <Tab key="contestar" title="Contestar">
                         <CuestionarioContestar cuestionario={cuestionario} />
                     </Tab>
-                    <Tab key="resultados" title="Resultados">
-                        <p>Resultados</p>
-                    </Tab>
                     <Tab key="ranking" title="Ranking">
                         <CuestionarioRanking cuestionario={cuestionario} />
                     </Tab>
