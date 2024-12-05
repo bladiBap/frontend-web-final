@@ -1,9 +1,14 @@
 "use client"
+import { Cuestionario, CuestionarioCreate } from '@/models/Cuestionario'
+import { CuestionarioService } from '@/services/CuestionarioService'
 import { Button, Card, CardBody, CardHeader, Checkbox, Input, Textarea } from '@nextui-org/react'
-import React from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { form } from 'framer-motion/client'
+import React, { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa'
 import { IoIosAdd } from 'react-icons/io'
+import LoadingBg from '../UI/LoadingBg'
 
 type Props = {
     id?: string
@@ -25,6 +30,8 @@ type DatosForm = {
 const CuestionarioForm = (
     {id}: Props
 ) => {
+    const queryClient = useQueryClient();
+
     const {
         control,
         formState: {
@@ -33,7 +40,8 @@ const CuestionarioForm = (
         },
         handleSubmit,
         setValue,
-        getValues
+        getValues,
+        setError
     } = useForm<DatosForm>({
         defaultValues: {
             titulo: '',
@@ -45,6 +53,21 @@ const CuestionarioForm = (
         criteriaMode: 'all',
         shouldFocusError: true
     });
+
+    const {
+        data: cuestionario,
+        isFetching: isCuestionarioFetching
+    } = useQuery({
+        queryKey: ['cuestionario', id],
+        queryFn: () => CuestionarioService.getCuestionario(Number(id)),
+        enabled: !!id,
+    })
+
+    useEffect(() => {
+        if (cuestionario) {
+            fillForm(cuestionario);
+        }
+    }, [cuestionario])
 
     const {
         fields: preguntasFields,
@@ -65,8 +88,55 @@ const CuestionarioForm = (
         }
     });
 
+    const createCuestionario = useMutation({
+        mutationFn: (body: CuestionarioCreate) => CuestionarioService.createCuestionario(body),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ['cuestionarios']
+            });
+            await queryClient.refetchQueries({
+                queryKey: ['cuestionarios']
+            });
+        },
+        onError: (error) => {
+            console.error(error)
+            setError('root', {
+                type: 'manual',
+                message: 'Ocurrió un error al guardar el cuestionario'
+            })
+        }
+    });
+
+    const updateCuestionario = useMutation({
+        mutationFn: (body: CuestionarioCreate) => CuestionarioService.updateCuestionario(Number(id), body),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ['cuestionarios']
+            });
+            await queryClient.refetchQueries({
+                queryKey: ['cuestionarios']
+            });
+        },
+        onError: (error) => {
+            console.error(error)
+            setError('root', {
+                type: 'manual',
+                message: 'Ocurrió un error al guardar el cuestionario'
+            })
+        }
+    });
+
     const onSubmitForm = async (data: DatosForm) => {
-        console.log(data);
+        const body: CuestionarioCreate = {
+            ...data,
+            fk_topico: 1,
+            fk_usuario: 2
+        }
+        if (id) {
+            await updateCuestionario.mutateAsync(body);
+        } else {
+            await createCuestionario.mutateAsync(body);
+        }
     }
 
     const handleMovePregunta = (fromIndex: number, toIndex: number) => {
@@ -78,10 +148,21 @@ const CuestionarioForm = (
             orden: index + 1,
         }));
 
-        console.log(updatedPreguntas);
-
         setValue('preguntas', updatedPreguntas);
     };
+
+    const fillForm = (cuestionario: Cuestionario) => {
+        setValue('titulo', cuestionario.titulo);
+        setValue('descripcion', cuestionario.descripcion);
+        setValue('preguntas', cuestionario.preguntas.map((pregunta) => ({
+            enunciado: pregunta.enunciado,
+            orden: pregunta.orden,
+            opciones: pregunta.opciones.map((opcion) => ({
+                texto: opcion.texto,
+                es_correcta: opcion.es_correcta
+            }))
+        })));
+    }
 
     return (
         <Card className='relative'>
@@ -137,18 +218,6 @@ const CuestionarioForm = (
                         )}
                     />
                     <div className='flex flex-col gap-4'>   
-                        <div>
-                            <p className='typography-h2'>
-                                Preguntas
-                            </p>
-                            {
-                                errors.preguntas && (
-                                    <p className='text-danger'>
-                                        {errors.preguntas?.message}
-                                    </p>
-                                )
-                            }
-                        </div>
                         {preguntasFields.map((pregunta, preguntaIndex) => {
                             return (
                                 <PreguntaField
@@ -164,6 +233,11 @@ const CuestionarioForm = (
                             );
                         })}
                     </div>
+                    {errors.root && (
+                        <p className='text-red-500 text-sm'>
+                            {errors.root.message}
+                        </p>
+                    )}
                     <Button
                         type='submit'
                         className='bg-primary text-white'
@@ -173,6 +247,7 @@ const CuestionarioForm = (
                     </Button>
                 </form>
             </CardBody>
+            <LoadingBg isLoading={isCuestionarioFetching} />
         </Card>
     )
 }
@@ -266,18 +341,6 @@ function PreguntaField(
                 )}
             />
             <div className='grid gap-4 grid-cols-1 sm:grid-cols-2'>
-                <div className='flex justify-between items-center'>
-                    <p className='typography-h2 px-1'>
-                        Opciones
-                    </p>
-                    {
-                        !!errors.preguntas?.[preguntaIndex]?.opciones && (
-                            <p className='text-danger'>
-                                {errors.preguntas?.[preguntaIndex]?.opciones?.message}
-                            </p>
-                        )
-                    }
-                </div>
                 {opcionesFields.map((opcion, opcionIndex) => (
                     <div className='flex flex-col gap-4' key={opcion.id}>
                         <div className='flex flex-row justify-between items-center'>
@@ -295,14 +358,15 @@ function PreguntaField(
                             <Controller
                                 name={`preguntas.${preguntaIndex}.opciones.${opcionIndex}.texto`}
                                 control={control}
+                                rules={{ required: 'Este campo es requerido' }}
                                 render={({ field }) => (
                                     <Input
                                         {...field}
                                         label='Texto'
                                         placeholder='Texto de la opción'
-                                        isInvalid={!!errors.texto}
+                                        isInvalid={!!errors.preguntas?.[preguntaIndex]?.opciones?.[opcionIndex]?.texto}
                                         isRequired
-                                        errorMessage={errors.texto?.message}
+                                        errorMessage={errors.preguntas?.[preguntaIndex]?.opciones?.[opcionIndex]?.texto?.message}
                                         name={field.name}
                                         className='w-full'
                                     />
