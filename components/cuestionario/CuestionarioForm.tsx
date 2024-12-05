@@ -42,7 +42,7 @@ const CuestionarioForm = (
         },
         mode: 'onBlur',
         reValidateMode: 'onBlur',
-        criteriaMode: 'firstError',
+        criteriaMode: 'all',
         shouldFocusError: true
     });
 
@@ -50,15 +50,17 @@ const CuestionarioForm = (
         fields: preguntasFields,
         append: appendPregunta,
         remove: removePregunta,
-        move: movePregunta
+        swap: movePregunta
     } = useFieldArray({
         control,
         name: 'preguntas',
         rules: {
             required: 'Este campo es requerido',
-            minLength: {
-                value: 1,
-                message: 'Debe tener al menos una pregunta'
+            validate: (value) => {
+                if (value.length < 2) {
+                    return 'Debe tener al menos dos preguntas';
+                }
+                return true;
             }
         }
     });
@@ -76,17 +78,27 @@ const CuestionarioForm = (
             orden: index + 1,
         }));
 
+        console.log(updatedPreguntas);
+
         setValue('preguntas', updatedPreguntas);
     };
 
     return (
-        <Card>
+        <Card className='relative'>
             <CardHeader>
-                <p
-                    className='text-2xl font-bold text-primary px-1'
-                >
-                    {id ? 'Editar' : 'Crear'} cuestionario
-                </p>
+                <div className='sticky top-20 flex justify-between items-center w-full'>
+                    <p
+                        className='text-2xl font-bold text-primary px-1'
+                    >
+                        {id ? 'Editar' : 'Crear'} cuestionario
+                    </p>
+                    <Button
+                        onClick={() => appendPregunta({enunciado: '', orden: preguntasFields.length, opciones: []})}
+                        className='bg-primary text-white'
+                    >
+                        Agregar pregunta <IoIosAdd className='text-2xl font-bold'/>
+                    </Button>
+                </div>
             </CardHeader>
             <CardBody>
                 <form noValidate onSubmit={handleSubmit(onSubmitForm)}
@@ -111,6 +123,7 @@ const CuestionarioForm = (
                     <Controller
                         name="descripcion"
                         control={control}
+                        rules={{ required: 'Este campo es requerido' }}
                         render={({ field }) => (
                             <Textarea
                                 label='Descripción'
@@ -124,6 +137,18 @@ const CuestionarioForm = (
                         )}
                     />
                     <div className='flex flex-col gap-4'>   
+                        <div>
+                            <p className='typography-h2'>
+                                Preguntas
+                            </p>
+                            {
+                                errors.preguntas && (
+                                    <p className='text-danger'>
+                                        {errors.preguntas?.message}
+                                    </p>
+                                )
+                            }
+                        </div>
                         {preguntasFields.map((pregunta, preguntaIndex) => {
                             return (
                                 <PreguntaField
@@ -133,17 +158,19 @@ const CuestionarioForm = (
                                     setValue={setValue}
                                     removePregunta={removePregunta}
                                     movePregunta={handleMovePregunta}
+                                    preguntasFields={preguntasFields}
                                     preguntaIndex={preguntaIndex}
                                 />
                             );
                         })}
-                        <Button
-                            onClick={() => appendPregunta({enunciado: '', orden: preguntasFields.length, opciones: []})}
-                            className='bg-primary text-white'
-                        >
-                            Agregar pregunta <IoIosAdd />
-                        </Button>
                     </div>
+                    <Button
+                        type='submit'
+                        className='bg-primary text-white'
+                        isLoading={isSubmitting}
+                    >
+                        Guardar
+                    </Button>
                 </form>
             </CardBody>
         </Card>
@@ -156,6 +183,7 @@ type PreguntaFieldProps = {
     setValue: any,
     removePregunta: any,
     movePregunta: any,
+    preguntasFields: any,
     preguntaIndex: number
 }
 
@@ -166,6 +194,7 @@ function PreguntaField(
         preguntaIndex,
         removePregunta,
         movePregunta,
+        preguntasFields,
         setValue
     }: PreguntaFieldProps
 ) {
@@ -175,30 +204,43 @@ function PreguntaField(
         remove: removeOpcion
     } = useFieldArray({
         control,
-        name: `preguntas.${preguntaIndex}.opciones`
+        name: `preguntas.${preguntaIndex}.opciones`,
+        rules: {
+            required: 'Este campo es requerido',
+            minLength: {
+                value: 2,
+                message: 'Debe tener al menos dos opciones'
+            }
+        }
     });
 
     return (
         <div className='flex flex-col gap-4'>
             <div className='flex justify-between items-center'>
-                <p className='text-lg font-bold text-primary px-1'>
+                <p className='typography-h2 px-1'>
                     Pregunta {preguntaIndex + 1}
                 </p>
                 <div className='flex gap-2'>
-                    <Button
-                        className='bg-primary text-white'
-                        onClick={() => movePregunta(preguntaIndex, preguntaIndex - 1)}
-                        disabled={preguntaIndex === 0}
-                    >
-                        <FaArrowUp />
-                    </Button>
-                    <Button
-                        className='bg-primary text-white'
-                        onClick={() => movePregunta(preguntaIndex, preguntaIndex + 1)}
-                        disabled={preguntaIndex === opcionesFields.length - 1}
-                    >
-                        <FaArrowDown />
-                    </Button>
+                    {
+                        preguntaIndex !== 0 && (
+                            <Button
+                                className='bg-primary text-white'
+                                onClick={() => movePregunta(preguntaIndex, preguntaIndex - 1)}
+                            >
+                                <FaArrowUp />
+                            </Button>
+                        )
+                    }
+                    {
+                        (preguntaIndex !== preguntasFields.length - 1 && preguntasFields.length > 1) && (
+                            <Button
+                                className='bg-primary text-white'
+                                onClick={() => movePregunta(preguntaIndex, preguntaIndex + 1)}
+                            >
+                                <FaArrowDown />
+                            </Button>
+                        )
+                    }
                     <Button
                         color='danger'
                         onClick={() => removePregunta(preguntaIndex)}
@@ -208,24 +250,37 @@ function PreguntaField(
                 </div>
             </div>
             <Controller
-                name="enunciado"
+                name={`preguntas.${preguntaIndex}.enunciado`}
                 control={control}
+                rules={{ required: 'Este campo es requerido' }}
                 render={({ field }) => (
                     <Input 
                         {...field}
                         label='Enunciado'
                         placeholder='Enunciado de la pregunta'
-                        isInvalid={!!errors.enunciado}
+                        isInvalid={!!errors.preguntas?.[preguntaIndex]?.enunciado}
                         isRequired
-                        errorMessage={errors.enunciado?.message}
+                        errorMessage={errors.preguntas?.[preguntaIndex]?.enunciado?.message}
                         name={field.name}
                     />
                 )}
             />
             <div className='grid gap-4 grid-cols-1 sm:grid-cols-2'>
+                <div className='flex justify-between items-center'>
+                    <p className='typography-h2 px-1'>
+                        Opciones
+                    </p>
+                    {
+                        !!errors.preguntas?.[preguntaIndex]?.opciones && (
+                            <p className='text-danger'>
+                                {errors.preguntas?.[preguntaIndex]?.opciones?.message}
+                            </p>
+                        )
+                    }
+                </div>
                 {opcionesFields.map((opcion, opcionIndex) => (
                     <div className='flex flex-col gap-4' key={opcion.id}>
-                        <div className='flex flex-row justify-between'>
+                        <div className='flex flex-row justify-between items-center'>
                             <p className='text-lg font-bold text-primary px-1'>
                                 Opción {opcionIndex + 1}
                             </p>
@@ -238,7 +293,7 @@ function PreguntaField(
                         </div>
                         <div className='flex flex-col gap-4 sm:flex-row'>
                             <Controller
-                                name={`opciones.${opcionIndex}.texto`}
+                                name={`preguntas.${preguntaIndex}.opciones.${opcionIndex}.texto`}
                                 control={control}
                                 render={({ field }) => (
                                     <Input
@@ -254,7 +309,7 @@ function PreguntaField(
                                 )}
                             />
                             <Controller
-                                name={`opciones.${opcionIndex}.es_correcta`}
+                                name={`preguntas.${preguntaIndex}.opciones.${opcionIndex}.es_correcta`}
                                 control={control}
                                 render={({ field }) => (
                                     <Checkbox
@@ -264,7 +319,7 @@ function PreguntaField(
                                         onValueChange={(e) => {
                                             opcionesFields.forEach((_, i) => {
                                                 if (i !== opcionIndex) {
-                                                    setValue(`opciones.${i}.es_correcta`, false)
+                                                    setValue(`preguntas.${preguntaIndex}.opciones.${i}.es_correcta`, false)
                                                 }
                                             })
                                             field.onChange(e)
@@ -282,7 +337,7 @@ function PreguntaField(
                 onClick={() => appendOpcion({texto: '', es_correcta: false})}
                 className='bg-primary text-white'
             >
-                Agregar opción <IoIosAdd />
+                Agregar opción <IoIosAdd className='text-2xl font-bold' />
             </Button>
         </div>
     )
