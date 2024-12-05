@@ -1,5 +1,4 @@
-"use client";
-import {Card, ListboxItem} from "@nextui-org/react";
+import {Card, Button} from "@nextui-org/react";
 
 export default function TabsComponent () {
     
@@ -8,22 +7,22 @@ export default function TabsComponent () {
             <Card
                 aria-label="Listbox Variants"
             >
-                <Card onPress={
+                <Button onPress={
                     () => {
                         console.log("Home");
                     }
-                }>Homae</Card>
-                <Card  onPress={
+                }>Home</Button>
+                <Button  onPress={
                     () => {
                         console.log("Misiones");
                     }
-                }>Misiones</Card>
-                <Card onPress={
+                }>Misiones</Button>
+                <Button onPress={
                     () => {
                         console.log("Logros");
                     }
                 }
-                >Logros</Card>
+                >Logros</Button>
             </Card>
         </div>
     );
