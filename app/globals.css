@@ -6,6 +6,12 @@
     height: 100% !important;
 }
 
+.celldiv > div {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
 @media (max-width: 768px) {
     .image-height > div {
         height: 50px !important;
