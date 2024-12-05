@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import {NextUIProvider} from "@nextui-org/react";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Providers from "@/components/layout/Providers";
+import TopMenu from "@/components/layout/TopMenu";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,11 +17,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-          <NextUIProvider>
+    <html lang="es" className="min-h-screen overflow-x-hidden">
+      <body className={`${inter.className} h-full`}>
+        <Providers>
+          <TopMenu />
+          <div className="container mx-auto px-3">
             {children}
-          </NextUIProvider>
+          </div>
+        </Providers>
       </body>
     </html>
   );
