@@ -17,5 +17,9 @@ export const CuestionarioService = {
     getCuestionario: async (id: number) : Promise<Cuestionario> => {
         const res = await api.get(`/cuestionarios/${id}`);
         return res.data;
+    },
+    getAll: async () : Promise<Cuestionario[]> => {
+        const res = await api.get('/cuestionarios');
+        return res.data;
     }
 }
