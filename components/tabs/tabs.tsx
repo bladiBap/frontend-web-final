@@ -1,29 +1,18 @@
-"use client";
-import {Card, ListboxItem} from "@nextui-org/react";
+import {Card, Button} from "@nextui-org/react";
+import { useRouter } from 'next/navigation';
 
 export default function TabsComponent () {
-    
+    const router = useRouter();
+
+    const handleTabs = (route: string) => {
+        router.push(route);
+    }
     return (
         <div className="flex flex-row">
-            <Card
-                aria-label="Listbox Variants"
-            >
-                <Card onPress={
-                    () => {
-                        console.log("Home");
-                    }
-                }>Homae</Card>
-                <Card  onPress={
-                    () => {
-                        console.log("Misiones");
-                    }
-                }>Misiones</Card>
-                <Card onPress={
-                    () => {
-                        console.log("Logros");
-                    }
-                }
-                >Logros</Card>
+            <Card>
+                <Button onPress={()=>handleTabs("/admin")}>Home</Button>
+                <Button  onPress={()=>handleTabs("/admin/mision")}>Misiones</Button>
+                <Button onPress={() => handleTabs("/admin/logro")}>Logros</Button>
             </Card>
         </div>
     );
