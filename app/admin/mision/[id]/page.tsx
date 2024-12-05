@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { LogroService } from '@/services/logro/logro';
-import { Button, Input, Checkbox } from "@nextui-org/react";
+import { MisionService } from '@/services/mision/mision';
+import { Button, Input, Checkbox, Select, SelectItem, Selection} from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
+import { PowerupService } from '@/services/powerup/PowerupService';
 import showToast from '@/utils/toast';
 
 export default function FormLogro({ params } : any
@@ -15,29 +16,42 @@ export default function FormLogro({ params } : any
     const [objetivo , setObjetivo] = useState(0)
     const [porPuntos , setPorPuntos] = useState(false)
     const [recompensa , setRecompensa] = useState(0)
+    const [powerUp , setPowerUp] = useState<Selection>(new Set([]));
+    const [powerUps , setPowerUps] = useState([])
 
     useEffect(() => {
         const fetchData = async () => {
+            await getAllPowerUps()
             if (id !== 'new') {
-                await getLogro(id)
+                await getMision(id)
             }
         }
         fetchData()
     }, [id])
 
-    const getLogro = async (id: number) => {
+    const getAllPowerUps = async () => {
         try {
-            const res = await LogroService.getById(id)
+            const res = await PowerupService.getPowerup()
+            setPowerUps(res)
+        }catch (error) {
+            showToast('No se pudo obtener los powerUps', 'error')
+        }
+    }
+
+    const getMision = async (id: number) => {
+        try {
+            const res = await MisionService.getById(id)
             if (res) {
                 setNombre(res.nombre)
                 setDescripcion(res.descripcion)
                 setObjetivo(res.objetivo)
                 setPorPuntos(res.por_puntos)
                 setRecompensa(res.recompensa)
+                setPowerUp(new Set([res.fk_powerup+""]))
             }
         } catch (error) {
-            showToast('No se pudo obtener el logro', 'error')
-            router.push('/admin/logro')
+            showToast('No se pudo obtener la Mision', 'error')
+            router.push('/admin/mision')
         }
         
     }
@@ -45,7 +59,7 @@ export default function FormLogro({ params } : any
     const onSubmit = async (e: any) => {
         e.preventDefault()
         e.stopPropagation()
-        if (!nombre || !descripcion || !objetivo || !recompensa) {
+        if (!nombre || !descripcion || !objetivo || !recompensa || powerUp.size === 0) {
             showToast('Todos los campos son obligatorios', 'error')
             return
         }
@@ -54,26 +68,28 @@ export default function FormLogro({ params } : any
             descripcion,
             objetivo : parseInt(objetivo),
             por_puntos: porPuntos,
-            recompensa : parseInt(recompensa)
+            recompensa : parseInt(recompensa),
+            fk_powerup: powerUp.values().next().value
         }
+        console.log(logro)
         sendLogro(logro)
     }
 
     const sendLogro = async (logro: any) => {
         try {
             if (id === 'new') {
-                await LogroService.create(logro)
-                showToast('Logro creado correctamente', 'success')
+                await MisionService.create(logro)
+                showToast('Mision creado correctamente', 'success')
             } else {
-                await LogroService.update(id, logro)
-                showToast('Logro actualizado correctamente', 'success')
+                await MisionService.update(id, logro)
+                showToast('Mision actualizado correctamente', 'success')
             }
-            router.push('/admin/logro')
+            router.push('/admin/mision')
         } catch (error) {
             if (id === 'new') {
-                showToast('No se pudo crear el logro', 'error')
+                showToast('No se pudo crear la mision', 'error')
             } else {
-                showToast('No se pudo actualizar el logro', 'error')
+                showToast('No se pudo actualizar el mision', 'error')
             }
         }
     }
@@ -92,6 +108,7 @@ export default function FormLogro({ params } : any
                     value={descripcion}
                     onValueChange={setDescripcion}
                 />
+
                 <div className="flex flex-row gap-4">
                     <Input
                         className="flex-1"
@@ -100,6 +117,23 @@ export default function FormLogro({ params } : any
                         value={objetivo}
                         onValueChange={setObjetivo}
                     />
+
+                    <Select
+                        className="flex-1"
+                        label="PowerUp"
+                        placeholder="Seleccione un PowerUp"
+                        selectedKeys={powerUp}
+                        onSelectionChange={setPowerUp}
+                    >
+                        { powerUps.length > 0 && powerUps.map((powerUp: any) => (
+                            <SelectItem key={powerUp.id} value={powerUp.id}>
+                                {powerUp.nombre}
+                            </SelectItem>
+                        ))}
+                    </Select>
+                </div>
+
+                <div className="flex flex-row gap-4">
                     <Input
                         className="flex-1"
                         type="number"

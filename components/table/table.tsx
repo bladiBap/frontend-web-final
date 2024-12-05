@@ -32,6 +32,8 @@ export default function TableComponent({items, columns, onEdit, onDelete}: Table
                     </Tooltip>
                 </div>
                 );
+            case "powerup":
+                return cellValue.nombre;
             default:
                 return cellValue;
         }
