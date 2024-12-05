@@ -21,5 +21,25 @@ export const CuestionarioService = {
     getAll: async () : Promise<Cuestionario[]> => {
         const res = await api.get('/cuestionarios');
         return res.data;
+    },
+    responder: async (
+        {
+            pregunta_id, 
+            opcion_id, 
+            puntos
+        } : {
+            pregunta_id: number,
+            opcion_id: number,
+            puntos: number
+        }
+    ) : Promise<void> => {
+        await api.post(`/preguntas/usuario-respuesta`, { pregunta_id, opcion_id, puntos });
+    },
+    getRanking: async (id: number) : Promise<{
+        usuario: string,
+        puntaje: number
+    }[]> => {
+        const res = await api.get(`/cuestionarios/${id}/ranking`);
+        return res.data;
     }
 }

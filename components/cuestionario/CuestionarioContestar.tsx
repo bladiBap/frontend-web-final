@@ -2,8 +2,10 @@
 import { Cuestionario } from "@/models/Cuestionario"
 import { Opcion } from "@/models/Opcion"
 import { Pregunta } from "@/models/Pregunta"
+import { CuestionarioService } from "@/services/CuestionarioService"
 import { MAXIMA_RACHA, PUNTOS_POR_PREGUNTA } from "@/utils/constants"
 import { Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react"
+import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 
 type Props = {
@@ -98,6 +100,9 @@ const CuestionarioPregunta = (
     }: PreguntaProps
 ) => {
     const [isRespondida, setIsRespondida] = useState(false);
+    const subirRespuesta = useMutation({
+        mutationFn: CuestionarioService.responder,
+    })
 
     const responder = (opcion: Opcion) => {
         setIsRespondida(true);
@@ -107,8 +112,18 @@ const CuestionarioPregunta = (
             }
             const puntos = PUNTOS_POR_PREGUNTA * racha;
             setPuntosTotales(puntosTotales + puntos);
+            subirRespuesta.mutate({
+                pregunta_id: pregunta.id,
+                opcion_id: opcion.id,
+                puntos
+            });
         } else {
             setRacha(1);
+            subirRespuesta.mutate({
+                pregunta_id: pregunta.id,
+                opcion_id: opcion.id,
+                puntos: 0
+            });
         }
     }
 
@@ -159,6 +174,7 @@ const CuestionarioPregunta = (
                                     }}
                                     color="primary"
                                     className="w-full"
+                                    isLoading={subirRespuesta.isPending}
                                 >
                                     {preguntaIndex < totalPreguntas ? 'Siguiente' : 'Finalizar'}
                                 </Button>

@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader, Tab, Tabs } from '@nextui-org/react'
 
 import React, { useState } from 'react'
 import CuestionarioContestar from './CuestionarioContestar'
+import CuestionarioRanking from './CuestionarioRanking'
 
 type Props = {
     cuestionario: Cuestionario
@@ -34,7 +35,7 @@ const CuestionarioInfo = (
                         <p>Resultados</p>
                     </Tab>
                     <Tab key="ranking" title="Ranking">
-                        <p>Ranking</p>
+                        <CuestionarioRanking cuestionario={cuestionario} />
                     </Tab>
                 </Tabs>
             </CardBody>
