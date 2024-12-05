@@ -3,12 +3,12 @@ import { Cuestionario, CuestionarioCreate } from '@/models/Cuestionario'
 import { CuestionarioService } from '@/services/CuestionarioService'
 import { Button, Card, CardBody, CardHeader, Checkbox, Input, Textarea } from '@nextui-org/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { form } from 'framer-motion/client'
 import React, { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa'
 import { IoIosAdd } from 'react-icons/io'
 import LoadingBg from '../UI/LoadingBg'
+import { useRouter } from 'next/navigation'
 
 type Props = {
     id?: string
@@ -31,6 +31,7 @@ const CuestionarioForm = (
     {id}: Props
 ) => {
     const queryClient = useQueryClient();
+    const router = useRouter();
 
     const {
         control,
@@ -97,6 +98,7 @@ const CuestionarioForm = (
             await queryClient.refetchQueries({
                 queryKey: ['cuestionarios']
             });
+            router.push('/user/cuestionario');
         },
         onError: (error) => {
             console.error(error)
@@ -116,6 +118,7 @@ const CuestionarioForm = (
             await queryClient.refetchQueries({
                 queryKey: ['cuestionarios']
             });
+            router.push('/user/cuestionario');
         },
         onError: (error) => {
             console.error(error)
@@ -174,8 +177,9 @@ const CuestionarioForm = (
                         {id ? 'Editar' : 'Crear'} cuestionario
                     </p>
                     <Button
-                        onClick={() => appendPregunta({enunciado: '', orden: preguntasFields.length, opciones: []})}
+                        onClick={() => appendPregunta({enunciado: '', orden: preguntasFields.length + 1, opciones: []})}
                         className='bg-primary text-white'
+                        type='button'
                     >
                         Agregar pregunta <IoIosAdd className='text-2xl font-bold'/>
                     </Button>
@@ -400,6 +404,7 @@ function PreguntaField(
             <Button
                 onClick={() => appendOpcion({texto: '', es_correcta: false})}
                 className='bg-primary text-white'
+                type='button'
             >
                 Agregar opción <IoIosAdd className='text-2xl font-bold' />
             </Button>
