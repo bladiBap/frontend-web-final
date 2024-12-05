@@ -5,7 +5,7 @@ import {Card, CardBody, Image, Input} from "@nextui-org/react";
 export default function RegisterComponent() {
 
     const urlImages = {
-
+        
     }
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");

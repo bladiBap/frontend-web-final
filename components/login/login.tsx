@@ -16,6 +16,16 @@ export default function LoginComponent() {
     const [correo, setCorreo] = useState("");
     const [contrasena, setContrasena] = useState("");
 
+    const handleLogin = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(correo === "" || contrasena === ""){
+            showToast("Por favor llene todos los campos", "error");
+            return;
+        }
+    }
+
     return (
         <Card
             isBlurred
@@ -35,13 +45,13 @@ export default function LoginComponent() {
                         />
                     </div>
 
-                    <div className="flex flex-col items-center w-full col-span-6 gap-4 md:col-span-8">
+                    <div className="flex flex-col items-center w-full p-8 col-span-6 gap-4 md:col-span-8">
                         <h1 className="typography-h1">Iniciar Sesion</h1>
                         <p>
                             Inicia sesion para poder acceder a NurQuests, una plataforma donde podras encontrar y 
                             crear cuestionarios de manera sencilla. 
                         </p>
-                        <form className="w-full flex flex-col gap-8 items-center mt-4">
+                        <form className="w-full flex flex-col gap-8 items-center mt-4" onSubmit={handleLogin}>
                             <Input
                                 className="w-full"
                                 label="Correo"
@@ -61,9 +71,7 @@ export default function LoginComponent() {
                                 value={contrasena}
                             />
 
-                            <Button className="w-full bg-primary text-white"
-                                onPress={() => showToast("Sesion iniciada", "success")}
-                            > Iniciar Sesion </Button>
+                            <Button className="w-full bg-primary text-white" type="submit"> Iniciar Sesion </Button>
 
                             <p className="text-sm text-primary cursor-pointer">¿No tienes cuenta?<a href="/register" className="text-primary">Registrate</a></p>
                         </form>
