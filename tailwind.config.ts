@@ -1,5 +1,6 @@
 import {nextui} from '@nextui-org/react';
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   content: [
@@ -15,6 +16,21 @@ const config: Config = {
       },
     },
   },
-  plugins: [nextui()],
+  plugins: [
+    nextui(),
+    plugin(({ addComponents }) => {
+      addComponents({
+        ".typography-h1" : {
+          "@apply text-2xl font-bold text-primary": ""
+        },
+        ".typography-h2" : {
+          "@apply text-xl font-bold text-primary": ""
+        },
+        ".typography-h3" : {
+          "@apply text-lg font-bold text-primary": ""
+        },
+      })
+    })
+  ],
 };
 export default config;

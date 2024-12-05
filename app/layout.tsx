@@ -21,7 +21,7 @@ export default function RootLayout({
       <body className={`${inter.className} h-full`}>
         <Providers>
           <TopMenu />
-          <div className="container mx-auto px-3">
+          <div className="container mx-auto px-3 py-2">
             {children}
           </div>
         </Providers>
