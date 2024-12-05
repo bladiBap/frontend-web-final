@@ -1,4 +1,4 @@
-import { Powerup, PowerupCreate } from "@/models/Powerup";
+import { Powerup, PowerupAvailables, PowerupCreate } from "@/models/Powerup";
 import api from "../axios";
 import { Nivel, NivelCreate } from "@/models/Nivel";
 
@@ -21,6 +21,14 @@ export const PowerupService = {
     },
     getPowerup: async (): Promise<Powerup[]> => {
         const res = await api.get('/powerup');
+        return res.data;
+    },
+    getPowerupsByUser: async (): Promise<PowerupAvailables[]> => {
+        const res = await api.post(`/powerup/user/`);
+        return res.data;
+    },
+    usePowerup: async (id: number): Promise<any> => {
+        const res = await api.get(`/use/powerup/${id}`);
         return res.data;
     }
 }
