@@ -1,13 +1,13 @@
+"use client"
 import { Cuestionario } from '@/models/Cuestionario'
 import { CuestionarioService } from '@/services/CuestionarioService';
 import { Button, Card, CardBody, CardFooter, CardHeader } from '@nextui-org/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 
 type Props = {
     cuestionario: Omit<Cuestionario, "preguntas">;
-    is_editable: boolean;
+    is_editable?: boolean;
 }
 
 const CuestionarioCard = (
@@ -37,12 +37,10 @@ const CuestionarioCard = (
                 </div>
             </CardHeader>
             <CardBody>
-                <p className=''>
-                    {cuestionario.descripcion}
-                </p>
+                {cuestionario.descripcion}
             </CardBody>
             {
-                is_editable && (
+                is_editable ? (
                     <CardFooter>
                         <div className='flex justify-center items-center gap-4 w-full'>
                             <Link href={`/user/cuestionario/form/${cuestionario.id}`}>
@@ -59,6 +57,16 @@ const CuestionarioCard = (
                                 Eliminar
                             </Button>
                         </div>
+                    </CardFooter>
+                ) : (
+                    <CardFooter className='flex justify-center items-center gap-4 w-full'>
+                        <Link href={`/user/cuestionario/${cuestionario.id}`}>
+                            <Button 
+                                color='primary'
+                            >
+                                Ver
+                            </Button>
+                        </Link>
                     </CardFooter>
                 )
             }

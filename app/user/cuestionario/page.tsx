@@ -18,7 +18,7 @@ const CuestionarioList = () => {
     <>
       <div className='flex flex-col justify-between'>
         <div className='flex justify-between items-center'>
-          <h1 className='text-2xl font-semibold text-primary'>Mis Cuestionarios</h1>
+          <h1 className='text-2xl font-bold text-primary'>Mis Cuestionarios</h1>
           <Link
             href='/user/cuestionario/form'
           >

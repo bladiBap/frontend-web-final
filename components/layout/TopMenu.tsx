@@ -16,7 +16,7 @@ const TopMenu = () => {
         },
         {
             name: 'CUESTIONARIOS',
-            path: '/cuestionario/form'
+            path: '/user/cuestionario'
         }
     ]
 
