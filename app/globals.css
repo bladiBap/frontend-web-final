@@ -2,3 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.image-height > div {
+    height: 100% !important;
+}
+
+@media (max-width: 768px) {
+    .image-height > div {
+        height: 50px !important;
+    }
+}
