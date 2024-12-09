@@ -1,11 +1,14 @@
 "use client"
-import { Input, Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenu, NavbarMenuToggle } from '@nextui-org/react';
+import { Input, Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenu, NavbarMenuToggle, Button } from '@nextui-org/react';
 import Link from 'next/link';
+import { useEffect, useState, use } from 'react';
 import { usePathname, useRouter } from 'next/navigation'
-
-import React, { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux';
+import { AuthService } from '../../services/usuario/auth/auth';
 
 const TopMenu = () => {
+    const user = useSelector((state) => state.user);
+    const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const path = usePathname();
     const router = useRouter();
@@ -17,8 +20,22 @@ const TopMenu = () => {
         {
             name: 'CUESTIONARIOS',
             path: '/user/cuestionario'
+        },
+        {
+            name: 'TAREAS',
+            path: '/tarea'
         }
     ]
+
+    const handleLogout = () => {
+        AuthService.logout().then(() => {
+            dispatch({  
+                type: "user/logout",
+                payload: {}
+            })
+            router.push('/');
+        });
+    }
 
     return (
         <Navbar isBordered
@@ -72,6 +89,21 @@ const TopMenu = () => {
                 ))}
             </NavbarContent>
             <NavbarContent className='flex gap-2 justify-end' justify='end'>
+                {  user.is_logged ? (
+                    <NavbarItem>
+                        <Button color="primary" variant="flat" onPress={handleLogout}>
+                            Cerra Sesion
+                        </Button>
+                    </NavbarItem>):(
+                    <NavbarItem className="hidden lg:flex">
+                        <Link href="/login/user">Iniciar Sesion</Link>
+                    </NavbarItem>
+                )
+
+                }
+                
+                
+            
                 <NavbarMenuToggle className="sm:hidden"/>
             </NavbarContent>
             <NavbarMenu>

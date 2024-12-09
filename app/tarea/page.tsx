@@ -83,7 +83,7 @@ export default function MePage() {
                                 </CardBody>
                             </Card>
                         ))}
-                        { misiones?.length === 0 && <p className="typography-p text-center">No hay misiones completadas</p>}
+                        { misiones?.length === 0 && <p className="typography-p text-center">No hay misiones</p>}
                     </div>
                 </CardBody>
             </Card>
@@ -100,7 +100,7 @@ export default function MePage() {
                         </CardBody>
                     </Card>
                 ))}
-                { logros?.length === 0 && <p className="typography-p text-center">No hay logros completados</p>}    
+                { logros?.length === 0 && <p className="typography-p text-center">No hay logros</p>}    
             </Card>
         </div>
     );

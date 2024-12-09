@@ -28,7 +28,7 @@ export default function PageMision() {
     }, []);
 
     const onConfirmDelete = async () => {
-        const res = await MisionService.delete(logro.id);
+        const res = await MisionService.delete(mision.id);
         if(res) {
             getAllLogros();
             onClose();
