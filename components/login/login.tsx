@@ -2,7 +2,9 @@
 import { useState } from "react";
 import { Card, CardBody, Image, Input, Button } from "@nextui-org/react";
 import { AuthService } from "@/services/usuario/auth/auth";
+import { useRouter } from 'next/navigation';
 import showToast from '@/utils/toast';
+import { useSelector, useDispatch } from 'react-redux';
 
 interface LoginProps {
     type : string;
@@ -13,6 +15,10 @@ export default function LoginComponent({type} : LoginProps) {
     const urlImages = {
 
     }
+
+    const router = useRouter();
+    const user = useSelector((state) => state.user);
+    const dispatch = useDispatch();
 
     const [correo, setCorreo] = useState("");
     const [contrasena, setContrasena] = useState("");
@@ -29,6 +35,15 @@ export default function LoginComponent({type} : LoginProps) {
         AuthService.login(correo, contrasena).then((res) => {
             console.log(res);
             showToast("Inicio de sesion exitoso", "success");
+            dispatch({
+                type: "user/login",
+                payload: {}
+            })
+            if (type === "admin") {
+                return router.push("/admin");
+            }else{
+                return router.push("/user/cuestionario");
+            }
         }).catch((err) => {
             console.log(err);
             showToast("Ocurrio un error", "error");
